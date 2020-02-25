@@ -624,7 +624,7 @@ static void insert_leaf_info(struct tleaf *l, struct tleaf_info *li)
 			last = p;
 		}
 		if (last)
-			hlist_add_after(&last->node, &li->node);
+			hlist_add_behind(&last->node, &li->node);
 		else
 			hlist_add_before(&li->node, &p->node);
 	}

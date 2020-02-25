@@ -132,13 +132,13 @@ enum {
 };
 
 #define IVI_HTABLE_SIZE		32
-#define GOLDEN_RATIO_16		0x9e37
-#define GOLDEN_RATIO_32		0x9e370001
+#define IVI_GOLDEN_RATIO_16		0x9e37
+#define IVI_GOLDEN_RATIO_32		0x9e370001
 
 // Generic hash function for a 16 bit value, see 'Introduction to Algorithms, 2nd Edition' Section 11.3.2
 static inline int port_hashfn(__be16 port)
 {
-	unsigned int m = port * GOLDEN_RATIO_16;
+	unsigned int m = port * IVI_GOLDEN_RATIO_16;
 	return ((m & 0xf800) >> 11);  // extract highest 6 bits as hash result
 }
 
@@ -146,7 +146,7 @@ static inline int port_hashfn(__be16 port)
 static inline int v4addr_port_hashfn(__be32 addr, __be16 port)
 {
 	__be32 m = addr + port;
-	m *= GOLDEN_RATIO_32;
+	m *= IVI_GOLDEN_RATIO_32;
 	return ((m & 0xf8000000) >> 27);
 }
 

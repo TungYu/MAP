@@ -39,7 +39,7 @@ struct net_device *v4_dev, *v6_dev;
 
 static int running;
 
-unsigned int nf_hook4(unsigned int hooknum, struct sk_buff *skb,
+static unsigned int nf_hook4(const struct nf_hook_ops *ops, struct sk_buff *skb,
 		const struct net_device *in, const struct net_device *out,
 		int (*okfn)(struct sk_buff *)) {
 
@@ -55,7 +55,7 @@ unsigned int nf_hook4(unsigned int hooknum, struct sk_buff *skb,
 	}
 }
 
-unsigned int nf_hook6(unsigned int hooknum, struct sk_buff *skb,
+static unsigned int nf_hook6(const struct nf_hook_ops *ops, struct sk_buff *skb,
 		const struct net_device *in, const struct net_device *out,
 		int (*okfn)(struct sk_buff *)) {
 	
@@ -72,18 +72,18 @@ unsigned int nf_hook6(unsigned int hooknum, struct sk_buff *skb,
 }
 
 struct nf_hook_ops v4_ops = {
-	list	:	{ NULL, NULL },
-	hook	:	nf_hook4,
-	owner	:	THIS_MODULE,
+//	list	:	{ NULL, NULL },
+	hook	:	(nf_hookfn *)nf_hook4,
+//	owner	:	THIS_MODULE,
 	pf	:	PF_INET,
 	hooknum	:	NF_INET_PRE_ROUTING,
 	priority:	NF_IP_PRI_FIRST,
 };
 
 struct nf_hook_ops v6_ops = {
-	list	:	{ NULL, NULL },
-	hook	:	nf_hook6,
-	owner	:	THIS_MODULE,
+//	list	:	{ NULL, NULL },
+	hook	:	(nf_hookfn *)nf_hook6,
+//	owner	:	THIS_MODULE,
 	pf	:	PF_INET6,
 	hooknum	:	NF_INET_PRE_ROUTING,
 	priority:	NF_IP6_PRI_FIRST,
@@ -112,8 +112,8 @@ int ivi_nf_init(void) {
 	v4_dev = NULL;
 	v6_dev = NULL;
 
-	nf_register_hook(&v4_ops);
-	nf_register_hook(&v6_ops);
+	nf_register_net_hook(&init_net, &v4_ops);
+	nf_register_net_hook(&init_net, &v6_ops);
 
 #ifdef IVI_DEBUG
 	printk(KERN_DEBUG "IVI: ivi_nf loaded.\n");
@@ -124,8 +124,8 @@ int ivi_nf_init(void) {
 void ivi_nf_exit(void) {
 	running = 0;
 
-	nf_unregister_hook(&v4_ops);
-	nf_unregister_hook(&v6_ops);
+	nf_unregister_net_hook(&init_net, &v4_ops);
+	nf_unregister_net_hook(&init_net, &v6_ops);
 	
 	if (v4_dev)
 		dev_put(v4_dev);
